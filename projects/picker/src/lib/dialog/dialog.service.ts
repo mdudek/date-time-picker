@@ -2,16 +2,34 @@
  * dialog.service
  */
 
-import { Overlay, OverlayConfig, OverlayContainer, OverlayRef, ScrollStrategy } from '@angular/cdk/overlay';
-import { ComponentPortal, ComponentType } from '@angular/cdk/portal';
+import {
+    ComponentRef,
+    Inject,
+    Injectable,
+    InjectionToken,
+    Injector,
+    Optional,
+    SkipSelf,
+    TemplateRef
+} from '@angular/core';
 import { Location } from '@angular/common';
-import { ComponentRef, Inject, Injectable, InjectionToken, Injector, Optional, SkipSelf, TemplateRef } from '@angular/core';
+import { OwlDialogConfig, OwlDialogConfigInterface } from './dialog-config.class';
+import { OwlDialogRef } from './dialog-ref.class';
+import { OwlDialogContainerComponent } from './dialog-container.component';
+import { extendObject } from '../utils';
 import { defer, Observable, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import { extendObject } from '../utils';
-import { OwlDialogConfig, OwlDialogConfigInterface } from './dialog-config.class';
-import { OwlDialogContainerComponent } from './dialog-container.component';
-import { OwlDialogRef } from './dialog-ref.class';
+import {
+    Overlay,
+    OverlayConfig,
+    OverlayContainer,
+    OverlayRef,
+    ScrollStrategy
+} from '@angular/cdk/overlay';
+import {
+    ComponentPortal,
+    ComponentType,
+} from '@angular/cdk/portal';
 
 export const OWL_DIALOG_DATA = new InjectionToken<any>('OwlDialogData');
 
@@ -199,7 +217,7 @@ export class OwlDialogService {
             const contentRef = dialogContainer.attachComponentPortal(
                 new ComponentPortal(componentOrTemplateRef, undefined, injector)
             );
-            dialogRef.componentInstance.set(contentRef.instance);
+            dialogRef.componentInstance = contentRef.instance;
         }
 
         dialogRef
@@ -215,17 +233,16 @@ export class OwlDialogService {
         dialogContainer: OwlDialogContainerComponent
     ) {
         const userInjector =
-            config &&
-            config.viewContainerRef &&
-            config.viewContainerRef.injector;
+            config?.viewContainerRef?.injector;
+        const providers = [
+            { provide: OwlDialogRef, useValue: dialogRef },
+            { provide: OwlDialogContainerComponent, useValue: dialogContainer },
+            { provide: OWL_DIALOG_DATA, useValue: config?.data },
+        ];
 
         return Injector.create({
-            providers: [
-                { provide: OwlDialogRef, useValue: dialogRef },
-                { provide: OwlDialogContainerComponent, useValue: dialogContainer },
-                { provide: OWL_DIALOG_DATA, useValue: config.data }
-            ],
-            parent: userInjector || this.injector
+            providers,
+            parent: userInjector || this.injector,
         });
     }
 

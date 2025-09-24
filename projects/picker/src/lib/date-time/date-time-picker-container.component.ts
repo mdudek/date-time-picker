@@ -12,7 +12,7 @@ import {
     EventEmitter,
     OnInit,
     Optional,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import { OwlDateTimeIntl } from './date-time-picker-intl.service';
 import { OwlCalendarComponent } from './calendar.component';
@@ -26,7 +26,7 @@ import {
     LEFT_ARROW,
     RIGHT_ARROW,
     SPACE,
-    UP_ARROW
+    UP_ARROW,
 } from '@angular/cdk/keycodes';
 
 @Component({
@@ -51,7 +51,8 @@ import {
     }
 })
 export class OwlDateTimeContainerComponent<T>
-    implements OnInit, AfterContentInit, AfterViewInit {
+    implements OnInit, AfterContentInit, AfterViewInit
+{
     @ViewChild(OwlCalendarComponent)
     calendar: OwlCalendarComponent<T>;
     @ViewChild(OwlTimerComponent)
@@ -112,7 +113,7 @@ export class OwlDateTimeContainerComponent<T>
             this._clamPickerMoment = this.dateTimeAdapter.clampDate(
                 value,
                 this.picker.minDateTime,
-                this.picker.maxDateTime
+                this.picker.maxDateTime,
             );
         }
         this.cdRef.markForCheck();
@@ -209,19 +210,24 @@ export class OwlDateTimeContainerComponent<T>
         return this.picker.pickerMode === 'inline' ? '' : 'enter';
     }
 
-    constructor( private cdRef: ChangeDetectorRef,
-                  private elmRef: ElementRef,
-                  private pickerIntl: OwlDateTimeIntl,
-                 @Optional() private dateTimeAdapter: DateTimeAdapter<T> ) {
-    }
+    constructor(
+        private cdRef: ChangeDetectorRef,
+        private elmRef: ElementRef,
+        private pickerIntl: OwlDateTimeIntl,
+        @Optional() private dateTimeAdapter: DateTimeAdapter<T>,
+    ) {}
 
     public ngOnInit() {
         if (this.picker.selectMode === 'range') {
             if (this.picker.selecteds[0]) {
-                this.retainStartTime = this.dateTimeAdapter.clone(this.picker.selecteds[0]);
+                this.retainStartTime = this.dateTimeAdapter.clone(
+                    this.picker.selecteds[0],
+                );
             }
             if (this.picker.selecteds[1]) {
-                this.retainEndTime = this.dateTimeAdapter.clone(this.picker.selecteds[1]);
+                this.retainEndTime = this.dateTimeAdapter.clone(
+                    this.picker.selecteds[1],
+                );
             }
         }
     }
@@ -302,13 +308,13 @@ export class OwlDateTimeContainerComponent<T>
                     selecteds[1] &&
                     this.dateTimeAdapter.compare(
                         this.pickerMoment,
-                        selecteds[1]
+                        selecteds[1],
                     ) === 1) ||
                 (this.activeSelectedIndex === 1 &&
                     selecteds[0] &&
                     this.dateTimeAdapter.compare(
                         this.pickerMoment,
-                        selecteds[0]
+                        selecteds[0],
                     ) === -1)
             ) {
                 selecteds[0] = this.pickerMoment;
@@ -366,7 +372,7 @@ export class OwlDateTimeContainerComponent<T>
     public handleKeydownOnInfoGroup(
         event: any,
         next: any,
-        index: number
+        index: number,
     ): void {
         switch (event.keyCode) {
             case DOWN_ARROW:
@@ -456,7 +462,8 @@ export class OwlDateTimeContainerComponent<T>
                         this.dateTimeAdapter.getDate(result),
                         this.dateTimeAdapter.getHours(this.picker.endAt),
                         this.dateTimeAdapter.getMinutes(this.picker.endAt),
-                        this.dateTimeAdapter.getSeconds(this.picker.endAt));
+                        this.dateTimeAdapter.getSeconds(this.picker.endAt),
+                    );
                 } else if (this.retainEndTime) {
                     to = this.dateTimeAdapter.createDate(
                         this.dateTimeAdapter.getYear(result),
@@ -464,7 +471,8 @@ export class OwlDateTimeContainerComponent<T>
                         this.dateTimeAdapter.getDate(result),
                         this.dateTimeAdapter.getHours(this.retainEndTime),
                         this.dateTimeAdapter.getMinutes(this.retainEndTime),
-                        this.dateTimeAdapter.getSeconds(this.retainEndTime));
+                        this.dateTimeAdapter.getSeconds(this.retainEndTime),
+                    );
                 } else {
                     to = result;
                 }
@@ -477,7 +485,7 @@ export class OwlDateTimeContainerComponent<T>
                         this.dateTimeAdapter.getDate(result),
                         this.dateTimeAdapter.getHours(this.picker.startAt),
                         this.dateTimeAdapter.getMinutes(this.picker.startAt),
-                        this.dateTimeAdapter.getSeconds(this.picker.startAt)
+                        this.dateTimeAdapter.getSeconds(this.picker.startAt),
                     );
                 } else if (this.retainStartTime) {
                     from = this.dateTimeAdapter.createDate(
@@ -486,7 +494,8 @@ export class OwlDateTimeContainerComponent<T>
                         this.dateTimeAdapter.getDate(result),
                         this.dateTimeAdapter.getHours(this.retainStartTime),
                         this.dateTimeAdapter.getMinutes(this.retainStartTime),
-                        this.dateTimeAdapter.getSeconds(this.retainStartTime));
+                        this.dateTimeAdapter.getSeconds(this.retainStartTime),
+                    );
                 } else {
                     from = result;
                 }
@@ -530,12 +539,12 @@ export class OwlDateTimeContainerComponent<T>
                 this.dateTimeAdapter.getDate(date),
                 this.dateTimeAdapter.getHours(this.pickerMoment),
                 this.dateTimeAdapter.getMinutes(this.pickerMoment),
-                this.dateTimeAdapter.getSeconds(this.pickerMoment)
+                this.dateTimeAdapter.getSeconds(this.pickerMoment),
             );
             result = this.dateTimeAdapter.clampDate(
                 result,
                 this.picker.minDateTime,
-                this.picker.maxDateTime
+                this.picker.maxDateTime,
             );
         } else {
             result = this.dateTimeAdapter.clone(date);

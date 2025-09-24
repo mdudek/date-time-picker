@@ -207,7 +207,7 @@ describe('OwlDateTimeComponent', () => {
                 flush();
 
                 const newHeight = getComputedStyle(popup).height;
-                expect(newHeight).toBe('');
+                expect(newHeight).toBe('0px');
             }));
 
             it('should close the popup when pressing ESCAPE', fakeAsync(() => {
