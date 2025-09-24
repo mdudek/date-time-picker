@@ -4,7 +4,7 @@
 
 import {
     AfterContentInit,
-    AfterViewInit,
+    AfterViewInit, AnimationCallbackEvent,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -12,7 +12,7 @@ import {
     EventEmitter,
     OnInit,
     Optional,
-    ViewChild,
+    ViewChild
 } from '@angular/core';
 import { OwlDateTimeIntl } from './date-time-picker-intl.service';
 import { OwlCalendarComponent } from './calendar.component';
@@ -38,10 +38,8 @@ import {
     preserveWhitespaces: false,
     standalone: false,
     host: {
-        'animate.enter': 'container-enter-animation',
-        'animate.leave': 'container-leave-animation',
-        '(animationstart)': 'handleContainerAnimationStart($event)',
-        '(animationend)': 'handleContainerAnimationDone($event)',
+        '(animate.enter)': 'onAnimateEnter($event)',
+        '(animate.leave)': 'onAnimateLeave($event)',
         '[class.owl-dt-container]': 'owlDTContainerClass',
         '[class.owl-dt-popup-container]': 'owlDTPopupContainerClass',
         '[class.owl-dt-dialog-container]': 'owlDTDialogContainerClass',
@@ -240,23 +238,23 @@ export class OwlDateTimeContainerComponent<T>
         this.focusPicker();
     }
 
-    public handleContainerAnimationStart(event: AnimationEvent): void {
-        if (event.animationName.includes('enter')) {
+    public handleContainerAnimationStart(animationName: 'enter' | 'leave'): void {
+        if (animationName === 'enter') {
             this.beforePickerOpened$.next(null);
         }
         this.animationStateChanged.emit({
             phaseName: 'start',
-            toState: event.animationName.includes('enter') ? 'enter' : 'exit'
+            toState: animationName
         });
     }
 
-    public handleContainerAnimationDone(event: AnimationEvent): void {
-        if (event.animationName.includes('enter')) {
+    public handleContainerAnimationDone(animationName: 'enter' | 'leave'): void {
+        if (animationName === 'enter') {
             this.pickerOpened$.next(null);
         }
         this.animationStateChanged.emit({
             phaseName: 'done',
-            toState: event.animationName.includes('enter') ? 'enter' : 'exit'
+            toState: animationName
         });
     }
 
@@ -393,6 +391,49 @@ export class OwlDateTimeContainerComponent<T>
 
             default:
                 return;
+        }
+    }
+
+    protected onAnimateEnter(event: AnimationCallbackEvent): void {
+        this.handleContainerAnimationStart('enter');
+        const duration = this.parseCssVariableDuration(event.target, '--container-enter-animation-duration');
+        if (duration === 0) {
+            this.handleContainerAnimationDone('enter');
+            event.animationComplete();
+        } else {
+            const animation = event.target.animate([
+                { opacity: 0, transform: 'scaleY(0)' },
+                { opacity: 1, transform: 'scaleY(1)' }
+            ], {
+                duration: duration ?? 400,
+                easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+                fill: 'forwards'
+            });
+            animation.finished.then(() => {
+                this.handleContainerAnimationDone('enter');
+                event.animationComplete();
+            });
+        }
+    }
+
+    protected onAnimateLeave(event: AnimationCallbackEvent): void {
+        this.handleContainerAnimationStart('leave');
+        const duration = this.parseCssVariableDuration(event.target, '--container-leave-animation-duration');
+        if (duration === 0) {
+            this.handleContainerAnimationDone('leave');
+            event.animationComplete();
+        } else {
+            event.target.animate([
+                { opacity: 1 },
+                { opacity: 0 }
+            ], {
+                duration: duration ?? 100,
+                easing: 'linear',
+                fill: 'forwards'
+            }).finished.then(() => {
+                this.handleContainerAnimationDone('leave');
+                event.animationComplete();
+            });
         }
     }
 
@@ -567,5 +608,23 @@ export class OwlDateTimeContainerComponent<T>
         } else if (this.timer) {
             this.timer.focus();
         }
+    }
+
+    private parseCssVariableDuration(el: Element, cssVariableName: string) {
+        const durationStr = getComputedStyle(el).getPropertyValue(cssVariableName).trim();
+
+        // Convert to ms
+        let duration: number | undefined = undefined;
+        if (durationStr.endsWith('ms')) {
+            duration = parseFloat(durationStr);
+        } else if (durationStr.endsWith('s')) {
+            duration = parseFloat(durationStr) * 1000;
+        } else if (durationStr) {
+            duration = parseFloat(durationStr);
+            if (isNaN(duration)) {
+                duration = undefined;
+            }
+        }
+        return duration;
     }
 }

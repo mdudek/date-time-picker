@@ -67,7 +67,8 @@ describe('OwlDateTimeComponent', () => {
                 ...imports
             ],
             providers,
-            declarations: [component, ...entryComponents]
+            declarations: [component, ...entryComponents],
+            animationsEnabled: true // required for picker container open/close animations
         });
 
         TestBed.overrideModule(BrowserDynamicTestingModule, {
@@ -76,6 +77,16 @@ describe('OwlDateTimeComponent', () => {
 
         return TestBed.createComponent(component);
     }
+
+    beforeEach(() => {
+        spyOn(HTMLElement.prototype, 'animate').and.callFake(() => {
+            return {
+                finished: new Promise(resolve => setTimeout(resolve, 100)), // finish animation after 100ms
+                play: () => {},
+                cancel: () => {}
+            } as any;
+        });
+    });
 
     afterEach(inject([OverlayContainer], (container: OverlayContainer) => {
         container.ngOnDestroy();

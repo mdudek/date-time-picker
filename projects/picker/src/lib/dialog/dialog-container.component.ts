@@ -137,7 +137,7 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
     public onAnimationDone(event: IDateTimePickerAnimationEvent): void {
         if (event.toState === 'enter') {
             this.trapFocus();
-        } else if (event.toState === 'exit') {
+        } else if (event.toState === 'leave') {
             this.restoreFocus();
         }
 

@@ -61,7 +61,7 @@ export class OwlDialogRef<T> {
 
         this.container.animationStateChanged
             .pipe(
-                filter((event: IDateTimePickerAnimationEvent) => event.phaseName === 'done' && event.toState === 'exit'),
+                filter((event: IDateTimePickerAnimationEvent) => event.phaseName === 'done' && event.toState === 'leave'),
                 take(1)
             )
             .subscribe(() => {
