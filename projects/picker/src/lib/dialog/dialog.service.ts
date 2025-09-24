@@ -2,35 +2,16 @@
  * dialog.service
  */
 
-import {
-    ComponentRef,
-    Inject,
-    Injectable,
-    InjectionToken,
-    Injector,
-    Optional,
-    SkipSelf,
-    TemplateRef
-} from '@angular/core';
+import { Overlay, OverlayConfig, OverlayContainer, OverlayRef, ScrollStrategy } from '@angular/cdk/overlay';
+import { ComponentPortal, ComponentType } from '@angular/cdk/portal';
 import { Location } from '@angular/common';
-import { OwlDialogConfig, OwlDialogConfigInterface } from './dialog-config.class';
-import { OwlDialogRef } from './dialog-ref.class';
-import { OwlDialogContainerComponent } from './dialog-container.component';
-import { extendObject } from '../utils';
+import { ComponentRef, Inject, Injectable, InjectionToken, Injector, Optional, SkipSelf, TemplateRef } from '@angular/core';
 import { defer, Observable, Subject } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import {
-    Overlay,
-    OverlayConfig,
-    OverlayContainer,
-    OverlayRef,
-    ScrollStrategy
-} from '@angular/cdk/overlay';
-import {
-    ComponentPortal,
-    ComponentType,
-    PortalInjector
-} from '@angular/cdk/portal';
+import { extendObject } from '../utils';
+import { OwlDialogConfig, OwlDialogConfigInterface } from './dialog-config.class';
+import { OwlDialogContainerComponent } from './dialog-container.component';
+import { OwlDialogRef } from './dialog-ref.class';
 
 export const OWL_DIALOG_DATA = new InjectionToken<any>('OwlDialogData');
 
@@ -218,7 +199,7 @@ export class OwlDialogService {
             const contentRef = dialogContainer.attachComponentPortal(
                 new ComponentPortal(componentOrTemplateRef, undefined, injector)
             );
-            dialogRef.componentInstance = contentRef.instance;
+            dialogRef.componentInstance.set(contentRef.instance);
         }
 
         dialogRef
@@ -237,16 +218,15 @@ export class OwlDialogService {
             config &&
             config.viewContainerRef &&
             config.viewContainerRef.injector;
-        const injectionTokens = new WeakMap();
 
-        injectionTokens.set(OwlDialogRef, dialogRef);
-        injectionTokens.set(OwlDialogContainerComponent, dialogContainer);
-        injectionTokens.set(OWL_DIALOG_DATA, config.data);
-
-        return new PortalInjector(
-            userInjector || this.injector,
-            injectionTokens
-        );
+        return Injector.create({
+            providers: [
+                { provide: OwlDialogRef, useValue: dialogRef },
+                { provide: OwlDialogContainerComponent, useValue: dialogContainer },
+                { provide: OWL_DIALOG_DATA, useValue: config.data }
+            ],
+            parent: userInjector || this.injector
+        });
     }
 
     private createOverlay(config: OwlDialogConfigInterface): OverlayRef {

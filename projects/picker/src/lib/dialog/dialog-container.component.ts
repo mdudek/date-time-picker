@@ -2,96 +2,25 @@
  * dialog-container.component
  */
 
-import {
-    ChangeDetectorRef,
-    Component,
-    ComponentRef,
-    ElementRef,
-    EmbeddedViewRef,
-    EventEmitter,
-    Inject,
-    OnInit,
-    Optional,
-    ViewChild
-} from '@angular/core';
-import {
-    animate,
-    animateChild,
-    AnimationEvent,
-    keyframes,
-    style,
-    transition,
-    trigger
-} from '@angular/animations';
-import { DOCUMENT } from '@angular/common';
 import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
-import {
-    BasePortalOutlet,
-    CdkPortalOutlet,
-    ComponentPortal,
-    TemplatePortal
-} from '@angular/cdk/portal';
+import { BasePortalOutlet, CdkPortalOutlet, ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { DOCUMENT } from '@angular/common';
+import { Component, ComponentRef, ElementRef, EmbeddedViewRef, EventEmitter, Inject, OnInit, Optional, signal, ViewChild } from '@angular/core';
+import { OwlDateTimeContainerComponent } from '../date-time/date-time-picker-container.component';
+import { IDateTimePickerAnimationEvent } from '../date-time/date-time-picker-animation-event';
 import { OwlDialogConfigInterface } from './dialog-config.class';
-
-const zoomFadeIn = {
-    opacity: 0,
-    transform: 'translateX({{ x }}) translateY({{ y }}) scale({{scale}})'
-};
-const zoomFadeInFrom = {
-    opacity: 0,
-    transform: 'translateX({{ x }}) translateY({{ y }}) scale({{scale}})',
-    transformOrigin: '{{ ox }} {{ oy }}'
-};
 
 @Component({
     selector: 'owl-dialog-container',
     templateUrl: './dialog-container.component.html',
     standalone: false,
-    animations: [
-        trigger('slideModal', [
-            transition(
-                'void => enter',
-                [
-                    style(zoomFadeInFrom),
-                    animate('300ms cubic-bezier(0.35, 0, 0.25, 1)', style('*')),
-                    animate(
-                        '150ms',
-                        keyframes([
-                            style({ transform: 'scale(1)', offset: 0 }),
-                            style({ transform: 'scale(1.05)', offset: 0.3 }),
-                            style({ transform: 'scale(.95)', offset: 0.8 }),
-                            style({ transform: 'scale(1)', offset: 1.0 })
-                        ])
-                    ),
-                    animateChild()
-                ],
-                {
-                    params: {
-                        x: '0px',
-                        y: '0px',
-                        ox: '50%',
-                        oy: '50%',
-                        scale: 1
-                    }
-                }
-            ),
-            transition(
-                'enter => exit',
-                [animateChild(), animate(200, style(zoomFadeIn))],
-                { params: { x: '0px', y: '0px', ox: '50%', oy: '50%' } }
-            )
-        ])
-    ],
     host: {
-        '(@slideModal.start)': 'onAnimationStart($event)',
-        '(@slideModal.done)': 'onAnimationDone($event)',
         '[class.owl-dialog-container]': 'owlDialogContainerClass',
         '[attr.tabindex]': 'owlDialogContainerTabIndex',
         '[attr.id]': 'owlDialogContainerId',
         '[attr.role]': 'owlDialogContainerRole',
         '[attr.aria-labelledby]': 'owlDialogContainerAriaLabelledby',
-        '[attr.aria-describedby]': 'owlDialogContainerAriaDescribedby',
-        '[@slideModal]': 'owlDialogContainerAnimation'
+        '[attr.aria-describedby]': 'owlDialogContainerAriaDescribedby'
     }
 })
 export class OwlDialogContainerComponent extends BasePortalOutlet
@@ -106,16 +35,15 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
     public ariaLabelledBy: string | null = null;
 
     /** Emits when an animation state changes. */
-    public animationStateChanged = new EventEmitter<AnimationEvent>();
+    public animationStateChanged = new EventEmitter<IDateTimePickerAnimationEvent>();
 
-    public isAnimating = false;
+    public isAnimating = signal(false);
 
     private _config: OwlDialogConfigInterface;
+    private _component: ComponentRef<unknown>;
     get config(): OwlDialogConfigInterface {
         return this._config;
     }
-
-    private state: 'void' | 'enter' | 'exit' = 'enter';
 
     // for animation purpose
     private params: any = {
@@ -154,12 +82,7 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         return this._config.ariaDescribedBy || null;
     }
 
-    get owlDialogContainerAnimation(): any {
-        return { value: this.state, params: this.params };
-    }
-
     constructor(
-        private changeDetector: ChangeDetectorRef,
         private elementRef: ElementRef,
         private focusTrapFactory: FocusTrapFactory,
         @Optional()
@@ -169,7 +92,8 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         super();
     }
 
-    public ngOnInit() {}
+    public ngOnInit() {
+    }
 
     /**
      * Attach a ComponentPortal as content to this dialog container.
@@ -184,7 +108,11 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         }
 
         this.savePreviouslyFocusedElement();
-        return this.portalOutlet.attachComponentPortal(portal);
+        const component = this.portalOutlet.attachComponentPortal(portal);
+        const pickerContainer = component.instance as OwlDateTimeContainerComponent<unknown>;
+        pickerContainer.animationStateChanged.subscribe(state => this.onAnimationDone(state));
+        this._component = component;
+        return component;
     }
 
     public attachTemplatePortal<C>(
@@ -201,12 +129,12 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         }
     }
 
-    public onAnimationStart( event: AnimationEvent ): void {
-        this.isAnimating = true;
+    public onAnimationStart(event: IDateTimePickerAnimationEvent): void {
+        this.isAnimating.set(true);
         this.animationStateChanged.emit(event);
     }
 
-    public onAnimationDone( event: AnimationEvent ): void {
+    public onAnimationDone(event: IDateTimePickerAnimationEvent): void {
         if (event.toState === 'enter') {
             this.trapFocus();
         } else if (event.toState === 'exit') {
@@ -214,12 +142,11 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         }
 
         this.animationStateChanged.emit(event);
-        this.isAnimating = false;
+        this.isAnimating.set(false);
     }
 
     public startExitAnimation() {
-        this.state = 'exit';
-        this.changeDetector.markForCheck();
+        this._component.destroy();
     }
 
     /**

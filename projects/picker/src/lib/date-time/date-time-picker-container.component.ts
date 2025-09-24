@@ -9,18 +9,18 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    EventEmitter,
     OnInit,
     Optional,
     ViewChild
 } from '@angular/core';
-import { AnimationEvent } from '@angular/animations';
 import { OwlDateTimeIntl } from './date-time-picker-intl.service';
 import { OwlCalendarComponent } from './calendar.component';
+import { IDateTimePickerAnimationEvent } from './date-time-picker-animation-event';
 import { OwlTimerComponent } from './timer.component';
 import { DateTimeAdapter } from './adapter/date-time-adapter.class';
 import { OwlDateTime, PickerType } from './date-time.class';
 import { Observable, Subject } from 'rxjs';
-import { owlDateTimePickerAnimations } from './date-time-picker.animations';
 import {
     DOWN_ARROW,
     LEFT_ARROW,
@@ -37,20 +37,17 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush,
     preserveWhitespaces: false,
     standalone: false,
-    animations: [
-        owlDateTimePickerAnimations.transformPicker,
-        owlDateTimePickerAnimations.fadeInPicker
-    ],
     host: {
-        '(@transformPicker.start)': 'handleContainerAnimationStart($event)',
-        '(@transformPicker.done)': 'handleContainerAnimationDone($event)',
+        'animate.enter': 'container-enter-animation',
+        'animate.leave': 'container-leave-animation',
+        '(animationstart)': 'handleContainerAnimationStart($event)',
+        '(animationend)': 'handleContainerAnimationDone($event)',
         '[class.owl-dt-container]': 'owlDTContainerClass',
         '[class.owl-dt-popup-container]': 'owlDTPopupContainerClass',
         '[class.owl-dt-dialog-container]': 'owlDTDialogContainerClass',
         '[class.owl-dt-inline-container]': 'owlDTInlineContainerClass',
         '[class.owl-dt-container-disabled]': 'owlDTContainerDisabledClass',
         '[attr.id]': 'owlDTContainerId',
-        '[@transformPicker]': 'owlDTContainerAnimation',
     }
 })
 export class OwlDateTimeContainerComponent<T>
@@ -62,6 +59,9 @@ export class OwlDateTimeContainerComponent<T>
 
     public picker: OwlDateTime<T>;
     public activeSelectedIndex = 0; // The current active SelectedIndex in range select mode (0: 'from', 1: 'to')
+
+    /** Emits when an animation state changes. */
+    public animationStateChanged = new EventEmitter<IDateTimePickerAnimationEvent>();
 
     // retain start and end time
     private retainStartTime: T;
@@ -235,16 +235,23 @@ export class OwlDateTimeContainerComponent<T>
     }
 
     public handleContainerAnimationStart(event: AnimationEvent): void {
-        const toState = event.toState;
-        if (toState === 'enter') {
+        if (event.animationName.includes('enter')) {
             this.beforePickerOpened$.next(null);
         }
+        this.animationStateChanged.emit({
+            phaseName: 'start',
+            toState: event.animationName.includes('enter') ? 'enter' : 'exit'
+        });
     }
+
     public handleContainerAnimationDone(event: AnimationEvent): void {
-        const toState = event.toState;
-        if (toState === 'enter') {
+        if (event.animationName.includes('enter')) {
             this.pickerOpened$.next(null);
         }
+        this.animationStateChanged.emit({
+            phaseName: 'done',
+            toState: event.animationName.includes('enter') ? 'enter' : 'exit'
+        });
     }
 
     public dateSelected(date: T): void {
