@@ -1,4 +1,4 @@
 export interface IDateTimePickerAnimationEvent {
     phaseName: 'start' | 'done';
-    toState: 'enter' | 'exit';
+    toState: 'enter' | 'leave';
 }

@@ -78,6 +78,16 @@ describe('OwlDateTimeComponent', () => {
         return TestBed.createComponent(component);
     }
 
+    beforeEach(() => {
+        spyOn(HTMLElement.prototype, 'animate').and.callFake(() => {
+            return {
+                finished: new Promise(resolve => setTimeout(resolve, 100)), // finish animation after 100ms
+                play: () => {},
+                cancel: () => {}
+            } as any;
+        });
+    });
+
     afterEach(inject([OverlayContainer], (container: OverlayContainer) => {
         container.ngOnDestroy();
     }));
