@@ -67,7 +67,8 @@ describe('OwlDateTimeComponent', () => {
                 ...imports
             ],
             providers,
-            declarations: [component, ...entryComponents]
+            declarations: [component, ...entryComponents],
+            animationsEnabled: true // required for picker container open/close animations
         });
 
         TestBed.overrideModule(BrowserDynamicTestingModule, {
