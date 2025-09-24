@@ -4,7 +4,8 @@
 
 import {
     AfterContentInit,
-    AfterViewInit, AnimationCallbackEvent,
+    AfterViewInit,
+    AnimationCallbackEvent,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -12,7 +13,7 @@ import {
     EventEmitter,
     OnInit,
     Optional,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import { OwlDateTimeIntl } from './date-time-picker-intl.service';
 import { OwlCalendarComponent } from './calendar.component';

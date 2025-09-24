@@ -2,10 +2,26 @@
  * dialog-container.component
  */
 
-import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
-import { BasePortalOutlet, CdkPortalOutlet, ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import {
+    Component,
+    ComponentRef,
+    ElementRef,
+    EmbeddedViewRef,
+    EventEmitter,
+    Inject,
+    OnInit,
+    Optional,
+    signal,
+    ViewChild,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Component, ComponentRef, ElementRef, EmbeddedViewRef, EventEmitter, Inject, OnInit, Optional, signal, ViewChild } from '@angular/core';
+import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
+import {
+    BasePortalOutlet,
+    CdkPortalOutlet,
+    ComponentPortal,
+    TemplatePortal,
+} from '@angular/cdk/portal';
 import { OwlDateTimeContainerComponent } from '../date-time/date-time-picker-container.component';
 import { IDateTimePickerAnimationEvent } from '../date-time/date-time-picker-animation-event';
 import { OwlDialogConfigInterface } from './dialog-config.class';
@@ -87,23 +103,22 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
         private focusTrapFactory: FocusTrapFactory,
         @Optional()
         @Inject(DOCUMENT)
-        private document: any
+        private document: any,
     ) {
         super();
     }
 
-    public ngOnInit() {
-    }
+    public ngOnInit() {}
 
     /**
      * Attach a ComponentPortal as content to this dialog container.
      */
     public attachComponentPortal<T>(
-        portal: ComponentPortal<T>
+        portal: ComponentPortal<T>,
     ): ComponentRef<T> {
         if (this.portalOutlet.hasAttached()) {
             throw Error(
-                'Attempting to attach dialog content after content is already attached'
+                'Attempting to attach dialog content after content is already attached',
             );
         }
 
@@ -116,7 +131,7 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
     }
 
     public attachTemplatePortal<C>(
-        portal: TemplatePortal<C>
+        portal: TemplatePortal<C>,
     ): EmbeddedViewRef<C> {
         throw new Error('Method not implemented.');
     }
@@ -192,7 +207,7 @@ export class OwlDialogContainerComponent extends BasePortalOutlet
     private trapFocus(): void {
         if (!this.focusTrap) {
             this.focusTrap = this.focusTrapFactory.create(
-                this.elementRef.nativeElement
+                this.elementRef.nativeElement,
             );
         }
 
