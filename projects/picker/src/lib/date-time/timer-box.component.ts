@@ -34,6 +34,8 @@ export class OwlTimerBoxComponent implements OnInit, OnDestroy {
 
     @Input() showDivider = false;
 
+    @Input() singleDotDivider = false;
+
     @Input() upBtnAriaLabel: string;
 
     @Input() upBtnDisabled: boolean;

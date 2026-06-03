@@ -466,6 +466,12 @@ $theme-color: #3f51b5;
   &:after {
     bottom: 35%;
   }
+
+  &.owl-dt-timer-divider-single-dot {
+    &:before {
+      display: none;
+    }
+  }
 }
 
 .owl-dt-control-button {
