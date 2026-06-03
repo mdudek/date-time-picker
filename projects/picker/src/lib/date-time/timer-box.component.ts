@@ -7,6 +7,7 @@ import {
     Component,
     EventEmitter,
     ElementRef,
+    HostBinding,
     ViewChild,
     Input,
     OnDestroy,
@@ -24,10 +25,7 @@ import { debounceTime } from 'rxjs/operators';
     styleUrls: ['./timer-box.component.scss'],
     standalone: false,
     preserveWhitespaces: false,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        '[class.owl-dt-timer-box]': 'owlDTTimerBoxClass'
-    }
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class OwlTimerBoxComponent implements OnInit, OnDestroy {
@@ -103,8 +101,13 @@ export class OwlTimerBoxComponent implements OnInit, OnDestroy {
         }
     }
 
-    get owlDTTimerBoxClass(): boolean {
-        return true;
+    @HostBinding('class')
+    get hostClassName(): string {
+        const labelClass = this.inputLabel
+            ? this.inputLabel.trim().toLowerCase().replace(/\s+/g, '-')
+            : '';
+
+        return labelClass ? `owl-dt-timer-box ${labelClass}` : 'owl-dt-timer-box';
     }
 
     @ViewChild('valueInput', { static: true })
