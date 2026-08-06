@@ -3,12 +3,13 @@
 [![npm](https://img.shields.io/npm/v/@danielmoncada/angular-datetime-picker.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/@danielmoncada/angular-datetime-picker)
 [![npm](https://img.shields.io/npm/dm/@danielmoncada/angular-datetime-picker.svg)](https://www.npmjs.com/package/@danielmoncada/angular-datetime-picker)
 
-**The current version of this package supports Angular 21**
+**The current version of this package supports Angular 22**
 
 If you need support for other Angular version, see _Breaking Changes_ below.
 
 ## Breaking Changes
 
+-   Version 22.x.x is the official release for Angular 22 and it also supports Angular 21.
 -   Version 21.x.x is the official release for Angular 21 and it also supports Angular 20.
 -   Version 20.x.x is the official release for Angular 20 and it also supports Angular 19.
 -   Version 19.x.x >= no longer supports ng 18. If you need ng 18 support, stick with version 18.x.x.
@@ -26,13 +27,24 @@ This picker is responsive design, so feel free to try it in your desktops, table
 ## How to Use
 
 1.  Install with [npm](https://www.npmjs.com): `npm install @danielmoncada/angular-datetime-picker --save`
-2.  Add styles.
-    If you are using Angular CLI, you can add this to your styles.css:
-    ```css
-    @import '@danielmoncada/angular-datetime-picker/assets/style/picker.min.css';
+2.  Install [`@angular/cdk`](https://material.angular.io/cdk/categories), which is a peer dependency and provides the overlay used by the picker: `npm install @angular/cdk --save`.
+    If your app already uses [Angular Material](https://material.angular.io), the CDK is installed for you and this step (and the overlay styles below) is already covered.
+3.  Add styles.
+    The picker renders its popup/dialog inside a CDK overlay, so you need both the picker styles and the CDK's prebuilt overlay styles. If you are **not** using Angular Material, add them once — either in your `styles.scss`:
+    ```scss
+    @use '@angular/cdk/overlay-prebuilt.css';
+    @use '@danielmoncada/angular-datetime-picker/assets/style/picker.min.css';
     ```
-    If you are not using the Angular CLI, you can include the picker.min.css via a `<link>` element in your index.html.
-3.  Add **OwlDateTimeModule** and **OwlNativeDateTimeModule** to your **@NgModule** like example below
+    or via the `styles` array in `angular.json`:
+    ```json
+    "styles": [
+        "node_modules/@angular/cdk/overlay-prebuilt.css",
+        "node_modules/@danielmoncada/angular-datetime-picker/assets/style/picker.min.css",
+        "src/styles.scss"
+    ]
+    ```
+    (If you already import Angular Material's theme, the CDK overlay styles are included and you only need the picker styles.)
+4.  Add **OwlDateTimeModule** and **OwlNativeDateTimeModule** to your **@NgModule** like example below
 
     ```typescript
     import { NgModule } from '@angular/core';
@@ -48,7 +60,7 @@ This picker is responsive design, so feel free to try it in your desktops, table
     export class MyTestAppModule {}
     ```
 
-4.  Connecting a picker to an input and a trigger.
+5.  Connecting a picker to an input and a trigger.
     ```html
     <input [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" placeholder="Date Time" /> <owl-date-time #dt1></owl-date-time>
     ```
@@ -178,7 +190,7 @@ Localization for different languages and formats is defined by `OWL_DATE_TIME_LO
 
 ## Dependencies
 
-none
+-   [`@angular/cdk`](https://material.angular.io/cdk/categories) (peer dependency) — provides the overlay the picker is rendered in. Remember to include the CDK overlay styles (`@use '@angular/cdk/overlay-prebuilt.css';`) unless you already use Angular Material. See [How to Use](#how-to-use).
 
 ## Demo
 

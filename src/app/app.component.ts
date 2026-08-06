@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { OwlDateTimeModule, OwlNativeDateTimeModule } from '../../projects/picker/src/public_api';
+import { OwlDateTimeModule, OwlNativeDateTimeModule } from '../../projects/picker/src/public-api';
 
 /** One day in milliseconds */
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
 @Component({
-  standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
